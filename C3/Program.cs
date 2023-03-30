@@ -7,6 +7,7 @@ namespace C3
     {
         // private const int Dimensions = 2;
         private static readonly decimal G = new decimal(-9.81);
+        private const string FilePath = "C:\\PJATK\\4th\\PSM\\CwiczeniaPSM\\C3\\Data\\exp.csv";
         private static readonly decimal Dt = new decimal(0.01); //delta t
         private static readonly decimal K = new decimal(0.01); //wind
         private static readonly decimal L = new decimal(1); // rope length in meters
@@ -14,66 +15,146 @@ namespace C3
         public static void Main(string[] args)
         {
             ClearFileCsv();
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             //Euler-----------------------------------------------------------------------------------------------------
             SetHeaderCsv();
             var alpha = new decimal(Math.PI / 180 * 45);
-            var point = new RotatePoint( new []
+            var point = new RotatePoint(new[]
             {
-                L * (decimal)Math.Cos((double)(alpha - (decimal)(Math.PI*90/180))), // x = L*cos(alpha-90^) 
-                L * (decimal)Math.Sin((double)(alpha - (decimal)(Math.PI*90/180)))  // y = L*sin(alpha-90^)
+                L * (decimal)Math.Cos((double)(alpha - (decimal)(Math.PI * 90 / 180))), // x = L*cos(alpha-90^) 
+                L * (decimal)Math.Sin((double)(alpha - (decimal)(Math.PI * 90 / 180))) // y = L*sin(alpha-90^)
             }, 0, new decimal(2), alpha, 2);
-            for (decimal t = 0; t < 2; t += Dt)
+            for (decimal t = 0; t <= 2; t += Dt)
             {
-                ExportCsv(t, point);
                 CountEuler(point, Dt);
+                ExportCsv(t, point);
             }
-            ExportCsv(2, point);
-            //BetterEuler-----------------------------------------------------------------------------------------------------
+
+            //BetterEuler-----------------------------------------------------------------------------------------------
             SetHeaderCsv();
+            alpha = new decimal(Math.PI / 180 * 45);
+            point = new RotatePoint(new[]
+            {
+                L * (decimal)Math.Cos((double)(alpha - (decimal)(Math.PI * 90 / 180))), // x = L*cos(alpha-90^) 
+                L * (decimal)Math.Sin((double)(alpha - (decimal)(Math.PI * 90 / 180))) // y = L*sin(alpha-90^)
+            }, 0, new decimal(2), alpha, 2);
+            for (decimal t = 0; t <= 2; t += Dt)
+            {
+                CountBetterEuler(point, Dt);
+                ExportCsv(t, point);
+            }
+
+            //RK4-------------------------------------------------------------------------------------------------------
+            SetHeaderCsv();
+            alpha = new decimal(Math.PI / 180 * 45);
+            point = new RotatePoint(new[]
+            {
+                L * (decimal)Math.Cos((double)(alpha - (decimal)(Math.PI * 90 / 180))), // x = L*cos(alpha-90^) 
+                L * (decimal)Math.Sin((double)(alpha - (decimal)(Math.PI * 90 / 180))) // y = L*sin(alpha-90^)
+            }, new decimal(0), new decimal(2), alpha, 2);
+            for (decimal t = 0; t <= 2; t += Dt)
+            {
+                CountRK4(point, Dt);
+                ExportCsv(t, point);
+            }
+
+            watch.Stop();
+            Console.WriteLine(watch.ElapsedMilliseconds);
+            Console.WriteLine(watch.Elapsed);
         }
 
         private static void CountEuler(RotatePoint point, decimal dT)
         {
-            point.Epsilon = (point.Mass * G - K * point.Omega * L) / L *
-                            (decimal)Math.Sin((double)point.Alpha); // E = ((mg-kwl)/l) * sin(A)
-            var nextAlpha = point.Alpha + point.Omega * dT;
-            var nextOmega = point.Omega + point.Epsilon * dT;
+            var grav = point.Mass * G * (decimal)Math.Sin((double)point.Alpha); // Fg
+            point.Epsilon = (grav - K * L * point.Omega) / (L * point.Mass); // E = ((mg * sin(A)-kwl)/lm)
+            var nextAlpha = point.Alpha + point.Omega * dT; // a = a0 + w0*t 
+            var nextOmega = point.Omega + point.Epsilon * dT; // w = w0 + e0*t
             point.Omega = nextOmega;
             point.Alpha = nextAlpha;
-            point.S[0] = L * (decimal)Math.Cos((double)(nextAlpha - (decimal)(Math.PI*90/180))); // x = L*cos(alpha-90^) 
-            point.S[1] = L * (decimal)Math.Sin((double)(nextAlpha - (decimal)(Math.PI*90/180))); // y = L*sin(alpha-90^)
+            point.S[0] =
+                L * (decimal)Math.Cos((double)(nextAlpha - (decimal)(Math.PI * 90 / 180))); // x = L*cos(alpha-90^) 
+            point.S[1] =
+                L * (decimal)Math.Sin((double)(nextAlpha - (decimal)(Math.PI * 90 / 180))); // y = L*sin(alpha-90^)
         }
 
-        public static Tuple<decimal, decimal> CountDerivative(decimal alpha, decimal omega, int k)
+        private static void CountBetterEuler(RotatePoint point, decimal dT)
         {
-            var ret = new Tuple<decimal, decimal>(0, 0);
-            return ret;
+            var grav = point.Mass * G * (decimal)Math.Sin((double)point.Alpha);
+            point.Epsilon = (grav - K * L * point.Omega) / (L * point.Mass); // E = ((mg * sin(A)-kwl)/lm)
+            var omegaHalf = point.Omega + point.Epsilon * dT; // W(to+dt/2)
+            var nextAlpha = point.Alpha + omegaHalf * dT;
+            var alphaHalf = point.Alpha + point.Omega * dT / 2;
+            grav = point.Mass * G * (decimal)Math.Sin((double)alphaHalf); //Fg
+            var epsilonHalf =
+                (grav - K * L * omegaHalf) /
+                (L * point.Mass); // E = ((mg * sin(a)-kwl)/lm) --- a here is in point t + dT/2
+            var nextOmega = point.Omega + epsilonHalf * dT; //omega
+            point.Omega = nextOmega;
+            point.Alpha = nextAlpha;
+            point.S[0] =
+                L * (decimal)Math.Cos((double)(nextAlpha - (decimal)(Math.PI * 90 / 180))); // x = L*cos(alpha-90^) 
+            point.S[1] =
+                L * (decimal)Math.Sin((double)(nextAlpha - (decimal)(Math.PI * 90 / 180))); // y = L*sin(alpha-90^)
         }
 
-        public static void CountBetterEuler(RotatePoint point, decimal dT)
+        private static void CountRK4(RotatePoint point, decimal dT)
         {
-            
+            var k = new decimal[4][];
+            for (int i = 0; i < 4; i++)
+                k[i] = new decimal[2];
+            var derivate = CalcDerivative(point.Alpha, point.Omega, point);
+            Tuple<decimal,decimal> next;
+            k[0][0] = derivate.Item1;
+            k[0][1] = derivate.Item2;
+            for (int i = 1; i < 4; i++)
+            {
+                if (i==3)
+                    next = CalcNext(point.Alpha, k[i - 1][0], point.Omega, k[i - 1][0], dT);
+                else
+                    next = CalcNext(point.Alpha, k[i - 1][0], point.Omega, k[i - 1][0], dT/2);
+                derivate = CalcDerivative(next.Item1, next.Item2, point);
+                k[i][0] = derivate.Item1;
+                k[i][1] = derivate.Item2;
+            }
+            point.Alpha += (k[0][0] + 2 * k[1][0] + 2 * k[2][0] + k[3][0]) / 6 * dT;
+            point.Omega += (k[0][1] + 2 * k[1][1] + 2 * k[2][1] + k[3][1]) / 6 * dT;
+            point.S[0] =
+                L * (decimal)Math.Cos((double)(point.Alpha - (decimal)(Math.PI * 90 / 180))); // x = L*cos(alpha-90^) 
+            point.S[1] =
+                L * (decimal)Math.Sin((double)(point.Alpha - (decimal)(Math.PI * 90 / 180))); // y = L*sin(alpha-90^)
+        }
+
+        private static Tuple<decimal, decimal> CalcDerivative(decimal alpha, decimal omega, RotatePoint point)
+        {
+            var grav = point.Mass * G * (decimal)Math.Sin((double)alpha);
+            var epsilon = (grav - K * L * omega) / (L * point.Mass); // E = ((mg * sin(A)-kwl)/lm)
+            return new Tuple<decimal, decimal>(omega, epsilon);
+        }
+        private static Tuple<decimal, decimal> CalcNext(decimal alpha,decimal kAlpha, decimal omega, decimal kOmega, decimal dT)
+        {
+            var nextKAlpha = alpha + kAlpha * dT;
+            var nextKOmega = omega + kOmega * dT;
+            return new Tuple<decimal, decimal>(nextKAlpha, nextKOmega);
         }
 
         private static void ClearFileCsv()
         {
-            File.WriteAllText("C:\\PJATK\\4th\\PSM\\CwiczeniaPSM\\C3\\Data\\exp.csv", "");
+            File.WriteAllText(FilePath, "");
         }
 
         private static void SetHeaderCsv()
         {
-            File.AppendAllText("C:\\PJATK\\4th\\PSM\\CwiczeniaPSM\\C3\\Data\\exp.csv", "\n\nTime,Aplha,Sx,Sy,Ep,Ek,Ec\n");
+            File.AppendAllText(FilePath,
+                "\n\nTime,Aplha,Sx,Sy,Ep,Ek,Ec\n");
         }
 
         private static void ExportCsv(decimal t, RotatePoint point)
         {
             var Ep = Math.Abs(point.Mass * G * (point.S[1] + L));
-            var Ek = point.Mass * (decimal)Math.Pow((double)(point.Omega * L), 2) / 2;
-            File.AppendAllText("C:\\PJATK\\4th\\PSM\\CwiczeniaPSM\\C3\\Data\\exp.csv", t + ","
-                + Math.Round(point.Alpha * 1000) / 1000 + ","
-                + Math.Round(point.S[0] * 1000) / 1000 + "," + Math.Round(point.S[1] * 1000) / 1000 +
-                "," + Math.Round(Ep * 1000) / 1000 + "," + Math.Round(Ek * 1000) / 1000 + "," +
-                Math.Round((Ep + Ek) * 1000) / 1000 + "\n"); // t x y Ep Ex Ec
+            var Ek = point.Mass * (point.Omega * point.Omega * L * L) / 2;
+            File.AppendAllText(FilePath,
+                $"{t},{Math.Round(point.Alpha, 3)},{Math.Round(point.S[0], 3)},{Math.Round(point.S[1], 3)}," +
+                $"{Math.Round(Ep, 3)},{Math.Round(Ek, 3)},{Math.Round(Ep + Ek, 3)}\n"); // t x y Ep Ek Ec
         }
     }
 }
