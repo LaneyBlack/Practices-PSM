@@ -9,8 +9,9 @@ namespace C3
         private static readonly decimal G = new decimal(-9.81);
         private const string FilePath = "C:\\PJATK\\4th\\PSM\\CwiczeniaPSM\\C3\\Data\\exp.csv";
         private static readonly decimal Dt = new decimal(0.01); //delta t
-        private static readonly decimal K = new decimal(0.01); //wind
+        private static readonly decimal K = new decimal(0.1); //wind
         private static readonly decimal L = new decimal(1); // rope length in meters
+        private static readonly decimal T = new decimal(4);
 
         public static void Main(string[] args)
         {
@@ -24,7 +25,7 @@ namespace C3
                 L * (decimal)Math.Cos((double)(alpha - (decimal)(Math.PI * 90 / 180))), // x = L*cos(alpha-90^) 
                 L * (decimal)Math.Sin((double)(alpha - (decimal)(Math.PI * 90 / 180))) // y = L*sin(alpha-90^)
             }, 0, new decimal(2), alpha, 2);
-            for (decimal t = 0; t <= 2; t += Dt)
+            for (decimal t = 0; t <= T; t += Dt)
             {
                 CountEuler(point, Dt);
                 ExportCsv(t, point);
@@ -38,7 +39,7 @@ namespace C3
                 L * (decimal)Math.Cos((double)(alpha - (decimal)(Math.PI * 90 / 180))), // x = L*cos(alpha-90^) 
                 L * (decimal)Math.Sin((double)(alpha - (decimal)(Math.PI * 90 / 180))) // y = L*sin(alpha-90^)
             }, 0, new decimal(2), alpha, 2);
-            for (decimal t = 0; t <= 2; t += Dt)
+            for (decimal t = 0; t <= T; t += Dt)
             {
                 CountBetterEuler(point, Dt);
                 ExportCsv(t, point);
@@ -52,7 +53,7 @@ namespace C3
                 L * (decimal)Math.Cos((double)(alpha - (decimal)(Math.PI * 90 / 180))), // x = L*cos(alpha-90^) 
                 L * (decimal)Math.Sin((double)(alpha - (decimal)(Math.PI * 90 / 180))) // y = L*sin(alpha-90^)
             }, new decimal(0), new decimal(2), alpha, 2);
-            for (decimal t = 0; t <= 2; t += Dt)
+            for (decimal t = 0; t <= T; t += Dt)
             {
                 CountRK4(point, Dt);
                 ExportCsv(t, point);
@@ -102,22 +103,24 @@ namespace C3
             var k = new decimal[4][];
             for (int i = 0; i < 4; i++)
                 k[i] = new decimal[2];
-            var derivate = CalcDerivative(point.Alpha, point.Omega, point);
-            Tuple<decimal,decimal> next;
-            k[0][0] = derivate.Item1;
-            k[0][1] = derivate.Item2;
+            var derivative = CalcDerivative(point.Alpha, point.Omega, point);
+            Tuple<decimal, decimal> next;
+            k[0][0] = derivative.Item1;
+            k[0][1] = derivative.Item2;
             for (int i = 1; i < 4; i++)
             {
-                if (i==3)
-                    next = CalcNext(point.Alpha, k[i - 1][0], point.Omega, k[i - 1][0], dT);
-                else
-                    next = CalcNext(point.Alpha, k[i - 1][0], point.Omega, k[i - 1][0], dT/2);
-                derivate = CalcDerivative(next.Item1, next.Item2, point);
-                k[i][0] = derivate.Item1;
-                k[i][1] = derivate.Item2;
+                next = i == 3
+                    ? CalcNext(point.Alpha, k[i - 1][0], point.Omega, k[i - 1][1], dT)
+                    : CalcNext(point.Alpha, k[i - 1][0], point.Omega, k[i - 1][1], dT / 2);
+                derivative = CalcDerivative(next.Item1, next.Item2, point);
+                k[i][0] = derivative.Item1;
+                k[i][1] = derivative.Item2;
             }
+
             point.Alpha += (k[0][0] + 2 * k[1][0] + 2 * k[2][0] + k[3][0]) / 6 * dT;
             point.Omega += (k[0][1] + 2 * k[1][1] + 2 * k[2][1] + k[3][1]) / 6 * dT;
+            var grav = point.Mass * G * (decimal)Math.Sin((double)point.Alpha);
+            point.Epsilon = (grav - K * L * point.Omega) / (L * point.Mass); // E = ((mg * sin(A)-kwl)/lm)
             point.S[0] =
                 L * (decimal)Math.Cos((double)(point.Alpha - (decimal)(Math.PI * 90 / 180))); // x = L*cos(alpha-90^) 
             point.S[1] =
@@ -130,7 +133,9 @@ namespace C3
             var epsilon = (grav - K * L * omega) / (L * point.Mass); // E = ((mg * sin(A)-kwl)/lm)
             return new Tuple<decimal, decimal>(omega, epsilon);
         }
-        private static Tuple<decimal, decimal> CalcNext(decimal alpha,decimal kAlpha, decimal omega, decimal kOmega, decimal dT)
+
+        private static Tuple<decimal, decimal> CalcNext(decimal alpha, decimal kAlpha, decimal omega, decimal kOmega,
+            decimal dT)
         {
             var nextKAlpha = alpha + kAlpha * dT;
             var nextKOmega = omega + kOmega * dT;
@@ -145,7 +150,7 @@ namespace C3
         private static void SetHeaderCsv()
         {
             File.AppendAllText(FilePath,
-                "\n\nTime,Aplha,Sx,Sy,Ep,Ek,Ec\n");
+                "\n\nTime,Alpha,Sx,Sy,Ep,Ek,Ec\n");
         }
 
         private static void ExportCsv(decimal t, RotatePoint point)
