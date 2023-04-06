@@ -2,7 +2,7 @@
 
 namespace PSM_C1
 {
-    class Program
+    internal static class Program
     {
         private static double Sin(double x, int n)
         {

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace C3
 {
-    internal class Program
+    internal static class Program
     {
         // private const int Dimensions = 2;
         private static readonly decimal G = new decimal(-9.81);
@@ -142,6 +142,15 @@ namespace C3
             return new Tuple<decimal, decimal>(nextKAlpha, nextKOmega);
         }
 
+        private static void ExportCsv(decimal t, RotatePoint point)
+        {
+            var Ep = Math.Abs(point.Mass * G * (point.S[1] + L));
+            var Ek = point.Mass * (point.Omega * point.Omega * L * L) / 2;
+            File.AppendAllText(FilePath,
+                $"{t},{Math.Round(point.Alpha, 3)},{Math.Round(point.S[0], 3)},{Math.Round(point.S[1], 3)}," +
+                $"{Math.Round(Ep, 3)},{Math.Round(Ek, 3)},{Math.Round(Ep + Ek, 3)}\n"); // t x y Ep Ek Ec
+        }
+
         private static void ClearFileCsv()
         {
             File.WriteAllText(FilePath, "");
@@ -151,15 +160,6 @@ namespace C3
         {
             File.AppendAllText(FilePath,
                 "\n\nTime,Alpha,Sx,Sy,Ep,Ek,Ec\n");
-        }
-
-        private static void ExportCsv(decimal t, RotatePoint point)
-        {
-            var Ep = Math.Abs(point.Mass * G * (point.S[1] + L));
-            var Ek = point.Mass * (point.Omega * point.Omega * L * L) / 2;
-            File.AppendAllText(FilePath,
-                $"{t},{Math.Round(point.Alpha, 3)},{Math.Round(point.S[0], 3)},{Math.Round(point.S[1], 3)}," +
-                $"{Math.Round(Ep, 3)},{Math.Round(Ek, 3)},{Math.Round(Ep + Ek, 3)}\n"); // t x y Ep Ek Ec
         }
     }
 }

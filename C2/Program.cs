@@ -3,7 +3,7 @@ using System.IO;
 
 namespace C2
 {
-    internal class Program
+    internal static class Program
     {
         const int dimensions = 2;
         private static decimal t = 0, m = new decimal(0.3), k = new decimal(0.1), g = new decimal(-10);
