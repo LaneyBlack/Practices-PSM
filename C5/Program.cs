@@ -11,7 +11,7 @@ namespace C5
         // private const int Dimensions = 2;
         private const string FilePath = "C:\\PJATK\\4th\\PSM\\CwiczeniaPSM\\C5\\Data\\exp.csv";
         private static readonly double G = 6.6743e-11; //N*km^2/kg^2 gravity const 6.6743e-11 N*m^2/kg^2 
-        private const double Dt = 14_400; //delta t (s)
+        private const double Dt = 21_600; //delta t (s)
         private const double T = 31_556_926; //simulation Time (s) one year = 2_592_000s
         private const int Dimensions = 2;
 
@@ -79,7 +79,6 @@ namespace C5
                     {
                         w[i] = anotherObject.S[i] - currentObject.S[i]; // by every coordinate W=S(anObj) - S (curObj)
                         wLen += Math.Pow(w[i], 2); // and then overall WLen = sqrt(Wx^2 + Wy^2)
-                        // ToDo be careful here
                         midW[i] = anotherObjectMidS[i] - midS[i];
                         midWLen += Math.Pow(midW[i], 2);
                     }
