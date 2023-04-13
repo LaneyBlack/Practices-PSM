@@ -4,20 +4,18 @@ namespace C5
 {
     public class CelestialObject
     {
-        public string Name { get; set; }
-        public double[] S { get; set; } // km
-        public double[] V { get; set; } // velocity km/s
-        public double[] A { get; set; } // acceleration km/s^2
+        public double[] S { get; set; } // m
+        public double[] V { get; set; } // velocity m/s
+        public double[] A { get; set; } // acceleration m/s^2
         public double M { get; set; } // mass [kg]
-
-
+        
         public CelestialObject(double sFromParent, double m, CelestialObject parent, double g)
         {
             M = m;
             S = new double[2];
-            S[0] = 0;
             V = new double[2];
             A = new double[2];
+            S[0] = 0;
             V[1] = 0;
             A[0] = 0;
             A[1] = 0;

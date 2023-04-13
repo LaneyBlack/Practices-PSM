@@ -9,7 +9,10 @@ namespace C5
     internal static class Program
     {
         // private const int Dimensions = 2;
-        private const string FilePath = "C:\\PJATK\\4th\\PSM\\CwiczeniaPSM\\C5\\Data\\exp.csv";
+        private const string
+            FilePath =
+                "C:\\PJATK\\4th\\PSM\\C5\\Data\\exp.csv"; //"C:\\PJATK\\4th\\PSM\\CwiczeniaPSM\\C5\\Data\\exp.csv"
+
         private static readonly double G = 6.6743e-11; //N*km^2/kg^2 gravity const 6.6743e-11 N*m^2/kg^2 
         private const double Dt = 21_600; //delta t (s)
         private const double T = 31_556_926; //simulation Time (s) one year = 2_592_000s
@@ -20,7 +23,7 @@ namespace C5
             ClearFileCsv();
             //Creating dictionary of celestial objects and filling it up
             var celestialObjectsDict = new Dictionary<string, CelestialObject>();
-            celestialObjectsDict.Add("Sun", new CelestialObject(0, 1.989e+30,null, G));
+            celestialObjectsDict.Add("Sun", new CelestialObject(0, 1.989e+30, null, G));
             celestialObjectsDict.Add("Earth", new CelestialObject(1.5e+11, 5.972e+24, celestialObjectsDict["Sun"], G));
             celestialObjectsDict.Add("Moon", new CelestialObject(3844e+5, 7.347e+22, celestialObjectsDict["Earth"], G));
             SetHeaderCsv(celestialObjectsDict);
@@ -28,13 +31,13 @@ namespace C5
             ExportCsv(0, celestialObjectsDict);
             for (var time = Dt; time <= T; time += Dt)
             {
-                CalcPosMidPoint(Dt, celestialObjectsDict);
+                CalcPosMidPoint(Dt, celestialObjectsDict,time);
                 ExportCsv(time, celestialObjectsDict);
             }
         }
 
 
-        private static void CalcPosMidPoint(double dT, IDictionary<string, CelestialObject> celestialObjectsDict)
+        private static void CalcPosMidPoint(double dT, IDictionary<string, CelestialObject> celestialObjectsDict, double time)
         {
             var celestialObjectsBefore = new Dictionary<string, CelestialObject>();
             // Make dictionary of celestial object before changes in system
@@ -42,7 +45,7 @@ namespace C5
             {
                 celestialObjectsBefore.Add(key, new CelestialObject(celestialObjectsDict[key]));
             }
-            
+
             foreach (var keyValuePair in celestialObjectsDict.Where(pair => pair.Key != "Sun"))
             {
                 // Initialise variables
@@ -71,7 +74,8 @@ namespace C5
                     for (var i = 0; i < Dimensions; i++)
                     {
                         midS[i] = currentObject.S[i] + currentObject.V[i] * dT / 2; // S(dt/2) = S(0) + V(0)*dt/2
-                        anotherObjectMidS[i] = anotherObject.S[i] + anotherObject.V[i] * dT / 2; // S(dt/2) = S(0) + V(0)*dt/2
+                        anotherObjectMidS[i] =
+                            anotherObject.S[i] + anotherObject.V[i] * dT / 2; // S(dt/2) = S(0) + V(0)*dt/2
                     }
 
                     //Distances between objects
