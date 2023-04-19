@@ -8,26 +8,22 @@ namespace C6
     {
         private const int Dimensions = 2;
 
-        private const string FilePath = "C:\\PJATK\\4th\\PSM\\C6\\Data\\exp.csv";
+        private const string FilePath = //"C:\\PJATK\\4th\\PSM\\C6\\Data\\exp.csv";
+            "C:\\PJATK\\4th\\PSM\\CwiczeniaPSM\\C6\\Data\\exp.csv";
 
-        public static void Main(string[] args)
+        public static void Main()
         {
             ClearFileCsv();
-            var spring = new Spring(2, 20, Dimensions);
+            var spring = new Spring(Math.PI/2, 10, Dimensions);
             SetHeaderCsv(spring);
             double time = 0;
-            const double dT = 0.1;
+            const double dT = 0.3;
             do
             {
                 ExportCsv(time, spring);
+                spring.CountNextMidPoint(dT);
                 time += dT;
-                CountMidPoint(dT, spring);
-            } while (spring.Points[spring.Points.Length / 2].Vy > 0);
-        }
-
-        private static void CountMidPoint(double dT, Spring spring)
-        {
-            
+            } while (time<=6);
         }
 
         private static void ExportCsv(double time, Spring spring)
@@ -37,7 +33,6 @@ namespace C6
             {
                 File.AppendAllText(FilePath, $"{Math.Round(point.S[1],3)},");
             }
-
             File.AppendAllText(FilePath, "\n");
         }
 
@@ -50,7 +45,7 @@ namespace C6
         {
             File.AppendAllText(FilePath, "Time,");
             for (var i = 0; i < spring.Points.Length; i++)
-                File.AppendAllText(FilePath, $"Point{i+1},");
+                File.AppendAllText(FilePath, $"{i},");
             File.AppendAllText(FilePath, "\n");
         }
     }

@@ -31,13 +31,14 @@ namespace C5
             ExportCsv(0, celestialObjectsDict);
             for (var time = Dt; time <= T; time += Dt)
             {
-                CalcPosMidPoint(Dt, celestialObjectsDict,time);
+                CalcPosMidPoint(Dt, celestialObjectsDict, time);
                 ExportCsv(time, celestialObjectsDict);
             }
         }
 
 
-        private static void CalcPosMidPoint(double dT, IDictionary<string, CelestialObject> celestialObjectsDict, double time)
+        private static void CalcPosMidPoint(double dT, IDictionary<string, CelestialObject> celestialObjectsDict,
+            double time)
         {
             var celestialObjectsBefore = new Dictionary<string, CelestialObject>();
             // Make dictionary of celestial object before changes in system
@@ -117,8 +118,7 @@ namespace C5
         {
             File.AppendAllText(FilePath, $"{t},");
             foreach (var keyValuePair in celestials)
-                File.AppendAllText(FilePath,
-                    $"{Math.Round(keyValuePair.Value.S[0], 3)},{Math.Round(keyValuePair.Value.S[1])},");
+                File.AppendAllText(FilePath, $"{Math.Round(keyValuePair.Value.S[0], 3)},{Math.Round(keyValuePair.Value.S[1])},");
             // t SunX SunY EarthX EarthY MoonX MoonY ...
             File.AppendAllText(FilePath, "\n");
         }
