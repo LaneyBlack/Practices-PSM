@@ -5,12 +5,12 @@ using MathNet.Numerics.LinearAlgebra.Complex32;
 
 namespace C7
 {
-    public class TempPlate
+    public class TemperaturePlate
     {
         public double[][] T { get; set; } // temperature matrix
         public int N { get; set; }
 
-        public TempPlate(int n)
+        public TemperaturePlate(int n)
         {
             N = n;
             T = new double[N + 2][];

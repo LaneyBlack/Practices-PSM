@@ -12,7 +12,7 @@ namespace C7
         public static void Main(string[] args)
         {
             ClearFileCsv();
-            var tempPlate = new TempPlate(int.Parse(args[0]));
+            var tempPlate = new TemperaturePlate(int.Parse(args[0]));
             SetHeaderCsv();
             tempPlate.SetEdgeTemps(new double[] { 200, 50, 150, 100 });
             ExportToCsv(tempPlate);
@@ -31,7 +31,7 @@ namespace C7
             File.AppendAllText(FilePath, "\n\n\n");
         }
 
-        private static void ExportToCsv(TempPlate plate)
+        private static void ExportToCsv(TemperaturePlate plate)
         {
             for (var y = 0; y < plate.T.Length; y++)
             {
