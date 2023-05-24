@@ -45,10 +45,10 @@ namespace C9
         public void CalcNextRk4(double dT)
         {
             var k = new double[4][];
-            k[0] = CalcDerivative(X, Y, Z);
+            k[0] = CalcDerivative(X, Y, Z); // Get the derivative to count next moves
             for (int i = 1; i < 4; i++)
             {
-                var next = i == 3
+                var next = i == 3 // last time without dt/2 so i need an if here
                     ? CountNext(dT, k[i - 1][0], k[i - 1][1], k[i - 1][2])
                     : CountNext(dT / 2, k[i - 1][0], k[i - 1][1], k[i - 1][2]);
                 k[i] = CalcDerivative(next[0], next[1], next[2]);
@@ -66,6 +66,7 @@ namespace C9
                     kSum[j] += k[i][j] * tmp;
                 }
             }
+            // Edit data
             X += kSum[0] / 6 * dT;
             Y += kSum[1] / 6 * dT;
             Z += kSum[2] / 6 * dT;
@@ -73,7 +74,7 @@ namespace C9
 
         private double[] CalcDerivative(double x, double y, double z)
         {
-            var derX = (A * y - A * x);
+            var derX = A * y - A * x;
             var derY = -x * z + B * x - y;
             var derZ = x * y - C * z;
             return new[] { derX, derY, derZ };
