@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace C9
+﻿namespace C9
 {
     public class ButterFly
     {
