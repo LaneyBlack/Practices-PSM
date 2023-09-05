@@ -27,5 +27,5 @@ Every project has a /Data subfolder in which you can find graphics exports...
 8) **ButterFly** (Deterministic Chaos)
 ![image](https://github.com/LaneyBlack/Practices-PSM/assets/44290162/239493a5-03ae-4bfd-8876-4b2ad2efd1b9)
 
-9) **Growth Simulation** (Realtime)
+9) **Fractal Plant Growth** (Realtime)
 ![image](https://github.com/LaneyBlack/Practices-PSM/assets/44290162/d31cb88a-7e1d-468b-8486-c0534872e805)
