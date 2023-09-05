@@ -54,6 +54,7 @@ def draw_instructions(instructions, screen):
             screen.brush.pendown()
         elif character == 'X':  # do nothing
             screen.brush.forward(0)  # 0 or 25
+    screen.brush.goto(0,0)
     screen.window.exitonclick()
 
 
